@@ -22,7 +22,12 @@ const Outstanding = () => {
 
   const { address, isConnected } = useAccount();
   const { data: balance } = useBalance({ address });
+  if (balance) {
+    const { formatted, symbol, ...restOfBalance } = balance;
 
+    console.log(formatted);
+    console.log(symbol);
+  }
   //Now ether
   const [addressE, setAddressE] = useState(null);
   const [contract, setContract] = useState(null);
@@ -94,7 +99,6 @@ const Outstanding = () => {
 
   useEffect(() => {
     if (address) {
-      console.log("balance:", balance);
       async function initialize() {
         if (typeof window.ethereum !== "undefined") {
           try {
@@ -768,7 +772,7 @@ const Outstanding = () => {
             </div>
           )}
 
-          {balanceError && (
+          {isConnected && balanceError && (
             <div className="mt-8  flex flex-col items-center  ">
               <Image
                 src="/wallet.jpg"
@@ -780,8 +784,8 @@ const Outstanding = () => {
                 You have insufficient balance.
               </p>
               <p className="font-bold text-xl text-center">
-                Your current balance is:{" "}
-                {parseFloat(balance.formatted).toFixed(5)} {balance.symbol}
+                Your current balance is: {parseFloat(formatted).toFixed(5)}{" "}
+                {symbol}
               </p>
               <p className="font-bold text-xl text-center">
                 You must have more than 0.00003421 ETH equivalent to transact.
