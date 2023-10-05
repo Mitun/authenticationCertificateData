@@ -784,8 +784,7 @@ const Outstanding = () => {
                 You have insufficient balance.
               </p>
               <p className="font-bold text-xl text-center">
-                Your current balance is: {parseFloat(formatted).toFixed(5)}{" "}
-                {symbol}
+                 {parseFloat(balance.formatted).toFixed(5)} {balance.symbol}
               </p>
               <p className="font-bold text-xl text-center">
                 You must have more than 0.00003421 ETH equivalent to transact.
