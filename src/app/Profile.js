@@ -60,7 +60,7 @@ export function Profile({ connectionStatus, setConnectionStatus }) {
           <div className="mr-9">
             <p>Connected to: {address.slice(0, 7)}...</p>
             <p>
-              Balance: {parseFloat(balance.formatted).toFixed(5)}
+              Balance: {parseFloat(balance.formatted).toFixed(5)}{""}
               {balance.symbol}
             </p>
           </div>
