@@ -132,6 +132,7 @@ const Outstanding = () => {
     setBtn1(true);
     setBtn2(false);
     setShowForm(!false);
+
     setShowForm2(false);
     setShow(false);
     setSuccessMessage(false);
@@ -146,6 +147,15 @@ const Outstanding = () => {
     setBtn2(true);
     setShowForm(false);
     setShowForm2(!false);
+    if (showForm2) {
+      formdata.certificateName = "";
+      formdata.CertificateRecepient = "";
+      formdata.cgpaObtained = "";
+      formdata.cgpaMaximum = "";
+      formdata.institution = "";
+      setImage(null);
+      setFileName("");
+    }
     setShow(false);
     setSuccessMessage(false);
     setCertificateDetails(false);
@@ -202,13 +212,17 @@ const Outstanding = () => {
 
   useEffect(() => {
     setUseEffectCompleted(false);
-    if (image) {
+    if (image && !showForm2) {
       onSubmitImage().then(() => {
         setUseEffectCompleted(true);
         const uniqueNumber = generateUniqueNumber(10000, 99999);
         setData11(uniqueNumber);
         console.log("the unique number is:", uniqueNumber);
       });
+    }
+    if (showForm2 && !useEffectCompleted) {
+      setImage(null);
+      setFileName("");
     }
   }, [image]);
 
@@ -261,6 +275,7 @@ const Outstanding = () => {
   // }, [image]);
   async function submittingFormData() {
     try {
+      setUseEffectCompleted(false);
       console.log("Now starting submittingFormData");
       console.log("printing ipfs data before", ipfshashData);
       if (image) {
@@ -314,6 +329,7 @@ const Outstanding = () => {
       } else {
         setwrongMessage2("");
         setLoader2(true);
+        setShowForm(false);
         if (ipfshashData) {
           try {
             const valueToSend = ethers.utils.parseUnits("0.1", "ether");
@@ -353,6 +369,7 @@ const Outstanding = () => {
             formdata.cgpaMaximum = "";
             formdata.institution = "";
             setImage(null);
+            setShowForm(false);
             setSuccessMessage(
               "Congratulations! Your data has been successfully stored in BLOCKCHAIN."
             );
@@ -377,6 +394,13 @@ const Outstanding = () => {
               "Error submitting data to the contract:",
               error.message
             );
+            console.log("hwlllo type error", typeof error.message);
+            console.log("hwlllo type error", typeof error);
+            console.log("hwlllo type error", error);
+            console.log(error.message[0]);
+            console.log(error.message.slice(0, error.message.indexOf("(")));
+            console.log(error[1]);
+            console.log(error[2]);
           }
         } else {
           console.log(
@@ -784,7 +808,8 @@ const Outstanding = () => {
                 You have insufficient balance.
               </p>
               <p className="font-bold text-xl text-center">
-                 {parseFloat(balance.formatted).toFixed(5)} {balance.symbol}
+                Your current balance is:{" "}
+                {parseFloat(balance.formatted).toFixed(5)} {balance.symbol}
               </p>
               <p className="font-bold text-xl text-center">
                 You must have more than 0.00003421 ETH equivalent to transact.
