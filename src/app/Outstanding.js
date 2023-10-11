@@ -461,7 +461,7 @@ const Outstanding = ({}) => {
             required
             onChange={onChangeFile}
           />
-          {fileName && <p>{fileName}</p>}
+          {fileName && <p>{fileName.slice(0, 15)}...</p>}
           {useEffectCompleted && fileName && (
             <p className="text-orange-600 ">Susccessfully uploaded</p>
           )}
