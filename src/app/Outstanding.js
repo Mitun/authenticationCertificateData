@@ -11,7 +11,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 // const fs = require("fs");
 
-const Outstanding = () => {
+const Outstanding = ({}) => {
   // const mycontract = "0xFCa3A60762Ced92A1389b2347e52f761Ea5F41ca";
   // const mycontract = "0x219255AE3B8E9dAF91C7d8C24Be2CCE8D327Cfd6";
   // const mycontract = "0x37eE7A297656A8720B90E8993D4d2bC48F5aE068"; //last contract before pay
@@ -21,13 +21,8 @@ const Outstanding = () => {
   // const mycontract = "0x5966771CD7FcB7b0C2f273D0cA342911F744E789"; //account 3
 
   const { address, isConnected } = useAccount();
-  const { data: balance } = useBalance({ address });
-  if (balance) {
-    const { formatted, symbol, ...restOfBalance } = balance;
+  const { data: balance, refetch } = useBalance({ address });
 
-    console.log(formatted);
-    console.log(symbol);
-  }
   //Now ether
   const [addressE, setAddressE] = useState(null);
   const [contract, setContract] = useState(null);
@@ -52,8 +47,9 @@ const Outstanding = () => {
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
   const [balanceError, setBalanceError] = useState(false);
+  const [userPersonalError, setuserPersonalError] = useState(false);
   // const [data7, setData7] = useState("");
-
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [certificateDetails, setCertificateDetails] = useState(null);
   const [formdata, setFormdata] = useState({
     // certificateID: "",
@@ -68,6 +64,17 @@ const Outstanding = () => {
     certificateID: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [realtimeBalance, setRealtimeBalance] = useState(null);
+  const [realtimeBalanceS, setRealtimeBalanceS] = useState(false);
+  console.log("now realtime balance in outstanding.js", realtimeBalance);
+
+  if (isConnected && balance) {
+    const { formatted, symbol, ...other } = balance;
+  }
+  const updateBalance = async () => {
+    await refetch();
+  };
+  console.log("balance after async balance funciton:", balance);
 
   //generating unique number
 
@@ -89,9 +96,6 @@ const Outstanding = () => {
         console.log("Found: Not a unique number");
       } else {
         console.log("The unique number is:", randomNumber);
-        // setData11(randomNumber);
-        // setData11(randomNumber);
-        // setCertificateID(randomNumber);
         return randomNumber;
       }
     }
@@ -107,9 +111,6 @@ const Outstanding = () => {
             const userAddress = await signer.getAddress();
             setAddressE(userAddress);
             console.log("im inside outstanding useeffect");
-
-            // const myContractAddress =
-            //   "0xFCa3A60762Ced92A1389b2347e52f761Ea5F41ca";
             const contract = new ethers.Contract(
               mycontract,
               CertificationVerify,
@@ -139,6 +140,7 @@ const Outstanding = () => {
     setCertificateDetails(false);
     setwrongMessage(false);
     setBalanceError(false);
+    setuserPersonalError(false);
     setLoader(false);
     setLoader2(false);
   }
@@ -161,20 +163,12 @@ const Outstanding = () => {
     setCertificateDetails(false);
     setwrongMessage(false);
     setBalanceError(false);
+    setuserPersonalError(false);
     setLoader(false);
     setLoader2(false);
   }
 
   function handleSubmit(e) {
-    // e.preventDefault();
-    // const { name, value } = e.target;
-
-    // setFormdata((data) => ({ ...data, [name]: value }));
-    // // let shouldRerun = true;
-    // const uniqueNumber = generateUniqueNumber(10000, 99999);
-    // // const theUniqNumber = JSON.stringify(uniqueNumber);
-    // setData11(uniqueNumber);
-    // console.log("Unique Number:", uniqueNumber);
     e.preventDefault();
 
     const { name, value } = e.target;
@@ -202,14 +196,6 @@ const Outstanding = () => {
     }
   }
 
-  // function handleSubmit2(e) {
-  //   e.preventDefault();
-  //   const { name, value } = e.target;
-  //   setFormdata((data) => ({ ...data, [name]: value }));
-  // }
-
-  // for file upload and managing
-
   useEffect(() => {
     setUseEffectCompleted(false);
     if (image && !showForm2) {
@@ -219,10 +205,6 @@ const Outstanding = () => {
         setData11(uniqueNumber);
         console.log("the unique number is:", uniqueNumber);
       });
-    }
-    if (showForm2 && !useEffectCompleted) {
-      setImage(null);
-      setFileName("");
     }
   }, [image]);
 
@@ -266,151 +248,164 @@ const Outstanding = () => {
       console.log(error);
     }
   }
-
-  //END for file upload and managing
-  // useEffect(() => {
-  //   if (isConnected && image) {
-  //     await onSubmitImage();
-  //   }
-  // }, [image]);
   async function submittingFormData() {
-    try {
-      setUseEffectCompleted(false);
-      console.log("Now starting submittingFormData");
-      console.log("printing ipfs data before", ipfshashData);
-      if (image) {
-        await onSubmitImage();
-      }
-      console.log("Now just FInished submittingFormData");
-      // let data1 = data11;
-      // data1 = formdata.certificateID;
+    if (balance.formatted > 0.1) {
+      try {
+        try {
+          setUseEffectCompleted(false);
+          console.log("Now starting submittingFormData");
+          console.log("printing ipfs data before", ipfshashData);
+          // if (image) {
+          //   await onSubmitImage();
+          // }
+          console.log("Now just FInished submittingFormData");
 
-      // await onSubmitImage();
-      console.log("printing ipfs data after", ipfshashData);
-      // let data7 = ethers.utils.toUtf8Bytes(JSON.stringify(imageData));
-      // const data7 = ipfshashData;
-      // const data1 = formdata.certificateID;
-      // const data1 = parseInt(data11);
-      const data2 = formdata.certificateName;
-      const data3 = formdata.CertificateRecepient;
-      const data4 = formdata.cgpaObtained;
-      const data5 = formdata.cgpaMaximum;
-      const data6 = formdata.institution;
-      setDataa2(data2);
-      setDataa3(data3);
-      // const data7 = formdata.uriData;
-      console.log("dataaaaa certificateid/data11", data11);
-      // console.log("dataaaaa uri", typeof data7);
-      console.log("TypeOf data11", typeof data11);
-      console.log("TypeOf certificatename", typeof data2);
-      console.log("TypeOf CertificateRecepient", typeof data3);
-      console.log("TypeOf cgpaObtained", typeof data4);
-      console.log("TypeOf cgpaMaximum", typeof data5);
-      console.log("TypeOf institution", typeof data6);
-      console.log("TypeOf uri", typeof ipfshashData);
+          console.log("printing ipfs data after", ipfshashData);
 
-      console.log("data1 is:", data11);
-      console.log("IPHS is:", ipfshashData);
-      if (
-        // data1 === "" ||
-        !fileName ||
-        data2 === "" ||
-        data3 === "" ||
-        data4 === "" ||
-        data5 === "" ||
-        data6 === ""
-        // data7 === ""
-      ) {
-        //setShowForm(true);
-        setLoader(false);
-        setLoader2(false);
-        setwrongMessage2("All fields required.");
-        //successMessage(false);
-      } else {
-        setwrongMessage2("");
-        setLoader2(true);
-        setShowForm(false);
-        if (ipfshashData) {
-          try {
-            const valueToSend = ethers.utils.parseUnits("0.1", "ether");
-            const gasEstimate = await contract.estimateGas.addNewCertificates(
-              data11,
-              data2,
-              data3,
-              data5,
-              data4,
-              data6,
-              ipfshashData,
-              { value: valueToSend } // Pass the value parameter to the estimation
-            );
+          const data2 = formdata.certificateName;
+          const data3 = formdata.CertificateRecepient;
+          const data4 = formdata.cgpaObtained;
+          const data5 = formdata.cgpaMaximum;
+          const data6 = formdata.institution;
+          setDataa2(data2);
+          setDataa3(data3);
+          // const data7 = formdata.uriData;
+          console.log("dataaaaa certificateid/data11", data11);
+          // console.log("dataaaaa uri", typeof data7);
+          console.log("TypeOf data11", typeof data11);
+          console.log("TypeOf certificatename", typeof data2);
+          console.log("TypeOf CertificateRecepient", typeof data3);
+          console.log("TypeOf cgpaObtained", typeof data4);
+          console.log("TypeOf cgpaMaximum", typeof data5);
+          console.log("TypeOf institution", typeof data6);
+          console.log("TypeOf uri", typeof ipfshashData);
 
-            // Send the transaction with the gas limit and value
-            const mydeporesult = await contract.addNewCertificates(
-              data11,
-              data2,
-              data3,
-              data5,
-              data4,
-              data6,
-              ipfshashData,
-              {
-                gasLimit: gasEstimate.add(50000), // Add some extra gas
-                value: valueToSend, // Ensure that the correct value is sent
+          console.log("data1 is:", data11);
+          console.log("IPHS is:", ipfshashData);
+          if (
+            // data1 === "" ||
+            !fileName ||
+            data2 === "" ||
+            data3 === "" ||
+            data4 === "" ||
+            data5 === "" ||
+            data6 === ""
+            // data7 === ""
+          ) {
+            //setShowForm(true);
+            setLoader(false);
+            setLoader2(false);
+            setwrongMessage2("All fields required.");
+            //successMessage(false);
+          } else {
+            setwrongMessage2("");
+            setLoader2(true);
+            setShowForm(false);
+            if (ipfshashData) {
+              try {
+                const valueToSend = ethers.utils.parseUnits("0.1", "ether");
+                const gasEstimate =
+                  await contract.estimateGas.addNewCertificates(
+                    data11,
+                    data2,
+                    data3,
+                    data5,
+                    data4,
+                    data6,
+                    ipfshashData,
+                    { value: valueToSend } // Pass the value parameter to the estimation
+                  );
+
+                // Send the transaction with the gas limit and value
+                const mydeporesult = await contract.addNewCertificates(
+                  data11,
+                  data2,
+                  data3,
+                  data5,
+                  data4,
+                  data6,
+                  ipfshashData,
+                  {
+                    gasLimit: gasEstimate.add(50000),
+                    value: valueToSend,
+                  }
+                );
+
+                setLoader(true);
+                setLoader2(false);
+                console.log("Transaction Hash:", mydeporesult.hash);
+                await mydeporesult.wait();
+                console.log("Transaction confirmed!");
+                setImage(null);
+                setFileName("");
+                formdata.certificateName = "";
+                formdata.CertificateRecepient = "";
+                formdata.cgpaObtained = "";
+                formdata.cgpaMaximum = "";
+                formdata.institution = "";
+
+                setShowForm(false);
+                setSuccessMessage(
+                  "Congratulations! Your data has been successfully stored in BLOCKCHAIN."
+                );
+                setLoader(false);
+                console.log(
+                  "CHeck image here",
+                  `https://ipfs.io/ipfs/${ipfshashData}`
+                );
+                setwrongMessage(false);
+                setShowForm(false);
+                setShowForm2(false);
+                setwrongMessage2(false);
+                setRealtimeBalanceS(!realtimeBalance);
+                await updateBalance();
+              } catch (error) {
+                setLoader(false);
+                setLoader2(false);
+                setuserPersonalError(true);
+                setwrongMessage(false);
+                setShowForm(false);
+                setShowForm2(false);
+                setwrongMessage2(false);
+                setImage(null);
+                setFileName("");
+                console.error(
+                  "Error submitting data to the contract:",
+                  error.message
+                );
+                console.log("hwlllo type error", typeof error.message);
+                console.log("hwlllo type error", typeof error);
+                console.log("hwlllo type error", error);
+                console.log(error.message[0]);
+                console.log(error.message.slice(0, error.message.indexOf("(")));
+                console.log(error[1]);
+                console.log(error[2]);
               }
-            );
-            setLoader(true);
-            setLoader2(false);
-            console.log("Transaction Hash:", mydeporesult.hash);
-            await mydeporesult.wait();
-            console.log("Transaction confirmed!");
-            formdata.certificateName = "";
-            formdata.CertificateRecepient = "";
-            formdata.cgpaObtained = "";
-            formdata.cgpaMaximum = "";
-            formdata.institution = "";
-            setImage(null);
-            setShowForm(false);
-            setSuccessMessage(
-              "Congratulations! Your data has been successfully stored in BLOCKCHAIN."
-            );
-            setLoader(false);
-            console.log(
-              "CHeck image here",
-              `https://ipfs.io/ipfs/${ipfshashData}`
-            );
-            setwrongMessage(false);
-            setShowForm(false);
-            setShowForm2(false);
-            setwrongMessage2(false);
-          } catch (error) {
-            setLoader(false);
-            setLoader2(false);
-            setBalanceError(true);
-            setwrongMessage(false);
-            setShowForm(false);
-            setShowForm2(false);
-            setwrongMessage2(false);
-            console.error(
-              "Error submitting data to the contract:",
-              error.message
-            );
-            console.log("hwlllo type error", typeof error.message);
-            console.log("hwlllo type error", typeof error);
-            console.log("hwlllo type error", error);
-            console.log(error.message[0]);
-            console.log(error.message.slice(0, error.message.indexOf("(")));
-            console.log(error[1]);
-            console.log(error[2]);
+            } else {
+              console.log(
+                "ipfs data not received to submit to contract",
+                ipfshashData
+              );
+            }
           }
-        } else {
-          console.log(
-            "ipfs data not received to submit to contract",
-            ipfshashData
-          );
+        } catch (error) {
+          console.error("Error submitting data to the contract:", error);
         }
+      } catch (error) {
+        console.error("Error", error);
       }
-    } catch (error) {
-      console.error("Error submitting data to the contract:", error);
+      setFormSubmitted(true);
+      // onUpdateBalance(balance.formatted);
+      setRealtimeBalance(balance);
+      // setRealtimeBalanceS(!realtimeBalance);
+
+      ///
+
+      //
+    } else {
+      setBalanceError(true);
+      setShowForm(false);
+      setFormSubmitted(false);
     }
   }
   async function retrievingFormData() {
@@ -447,39 +442,6 @@ const Outstanding = () => {
       // Handle any errors that may occur during the contract call.
     }
   }
-
-  // async function retrievingFormData() {
-  //   console.log("Retrieving form data function called");
-  //   console.log("Certificate ID:", formdataa.certificateID);
-  //   const gasLimit = 3 ^ 100000;
-  //   const mydeporesult = await contract?.getCertificateDetails(
-  //     formdataa.certificateID,
-  //     { gasLimit }
-  //   );
-  //   console.log("hello:", mydeporesult);
-  //   console.log("hello id:", mydeporesult[0]);
-  //   // if () {
-  //   //   console.log("data not found man");
-  //   // } else {
-  //   //   console.log("data found");
-  //   // }
-  //   console.log("output", mydeporesult);
-  //   setCertificateDetails(mydeporesult);
-  //   console.log("output certificate", certificateDetails);
-  //   if (mydeporesult.certificateName === "") {
-  //     console.log("its first loop");
-  //     setwrongMessage("Not Verified!!");
-  //     setCertificateDetails(false);
-  //     setShowForm(false);
-  //     setShowForm2(false);
-  //   } else {
-  //     setShowForm(false);
-  //     setShowForm2(false);
-  //     setSuccessMessage("Verification Successfull!!");
-  //     console.log("check the image:", `https://ipfs.io/ipfs/${ipfshashData}`);
-  //     formdataa.certificateID = "";
-  //   }
-  // }
 
   const certificateForm = (
     <span>
@@ -635,13 +597,6 @@ const Outstanding = () => {
             <div className="px-6 py-4 ">
               <div className=" font-bold h-20 text-xl mb-2 text-center mt-12">
                 Blockchain-Powered Certificate Verification System
-                {/* <Image
-                  className="  "
-                  src="/tick.png"
-                  alt="Image Description"
-                  width={50} // Replace with the desired width
-                  height={40}
-                /> */}
               </div>
             </div>
           </div>
@@ -670,11 +625,6 @@ const Outstanding = () => {
               You are not logged in. Log in first, then try.
             </p>
           )}
-          {/* {!isConnected && (toggleFormVisibility || toggleFormVisibility2) && (
-            <p className="text-red-600 mt-9 font-extrabold bg-red-400 px-2">
-              You are not logged in. Log in first, then try.
-            </p>
-          )} */}
 
           {isConnected && showForm
             ? certificateForm
@@ -813,6 +763,19 @@ const Outstanding = () => {
               </p>
               <p className="font-bold text-xl text-center">
                 You must have more than 0.00003421 ETH equivalent to transact.
+              </p>
+            </div>
+          )}
+          {isConnected && userPersonalError && (
+            <div className="mt-8  flex flex-col items-center  ">
+              <Image
+                src="/Picture1.png"
+                alt="Image Description"
+                width={450}
+                height={240}
+              />
+              <p className="font-bold text-xl mt-5 text-center bg-orange-600 p-4 ">
+                You have declined the transaction!
               </p>
             </div>
           )}
