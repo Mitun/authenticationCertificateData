@@ -778,9 +778,8 @@ const Outstanding = ({}) => {
             ? certificateForm
             : isConnected && showForm2 && certificateForm2}
           {isConnected &&
-            successMessage &&
             certificateDetails &&
-            certificateDetails[1] === address && errorForPrivate &&(
+            certificateDetails[1] === address && errorForPrivate && (
               <div className="flex flex-col bg-green-300 p-4 items-center justify-center ">
                 {certificateDetails[8] == true ? (
                   <p className=" font-bold text-sm ">
