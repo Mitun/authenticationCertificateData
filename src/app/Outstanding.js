@@ -384,7 +384,7 @@ const Outstanding = ({}) => {
                 formdata.cgpaObtained = "";
                 formdata.cgpaMaximum = "";
                 formdata.institution = "";
-                // formdataaa.certificateVisibility = "";
+                formdataaa.certificateVisibility = "";
 
                 setShowForm(false);
                 setSuccessMessage(
@@ -480,6 +480,9 @@ const Outstanding = ({}) => {
         setSuccessMessage("Verification Successful!!");
         console.log("check the image:", `https://ipfs.io/ipfs/${ipfshashData}`);
         formdataa.certificateID = "";
+      } else {
+        console.log("Access denied");
+        setLoader3(false);
       }
     } catch (error) {
       setLoader3(false);
@@ -778,8 +781,9 @@ const Outstanding = ({}) => {
             ? certificateForm
             : isConnected && showForm2 && certificateForm2}
           {isConnected &&
+            successMessage &&
             certificateDetails &&
-            certificateDetails[1] === address && errorForPrivate && (
+            certificateDetails[1] === address && (
               <div className="flex flex-col bg-green-300 p-4 items-center justify-center ">
                 {certificateDetails[8] == true ? (
                   <p className=" font-bold text-sm ">
@@ -807,7 +811,7 @@ const Outstanding = ({}) => {
                 {showCertificateForm3 && certificateForm3}
               </div>
             )}
-          {isConnected && successMessage && !errorForPrivate && (
+          {isConnected && successMessage && (
             <div className="mt-10 items-center flex flex-col justify-center text-center">
               <Image
                 src="/img3.png"
