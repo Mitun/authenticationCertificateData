@@ -384,7 +384,7 @@ const Outstanding = ({}) => {
                 formdata.cgpaObtained = "";
                 formdata.cgpaMaximum = "";
                 formdata.institution = "";
-                formdataaa.certificateVisibility = "";
+                // formdataaa.certificateVisibility = "";
 
                 setShowForm(false);
                 setSuccessMessage(
