@@ -470,7 +470,7 @@ const Outstanding = ({}) => {
       console.log("output", mydeporesult);
       setCertificateDetails(mydeporesult);
 
-      if (mydeporesult[8] === true) {
+      if (mydeporesult[2] !== "") {
         // setErrorForPrivate(true);
         setLoader3(false);
         console.log("Succesfully fetched data");
@@ -480,9 +480,6 @@ const Outstanding = ({}) => {
         setSuccessMessage("Verification Successful!!");
         console.log("check the image:", `https://ipfs.io/ipfs/${ipfshashData}`);
         formdataa.certificateID = "";
-      } else {
-        console.log("Access denied");
-        setLoader3(false);
       }
     } catch (error) {
       setLoader3(false);
