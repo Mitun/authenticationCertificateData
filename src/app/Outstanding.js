@@ -39,6 +39,7 @@ const Outstanding = ({}) => {
   const [useEffectCompleted2, setUseEffectCompleted2] = useState(false);
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
+  const [loader3, setLoader3] = useState(false);
   const [qqq, setQqq] = useState("");
   const [balanceError, setBalanceError] = useState(false);
   const [userPersonalError, setuserPersonalError] = useState(false);
@@ -451,6 +452,7 @@ const Outstanding = ({}) => {
   }
 
   async function retrievingFormData() {
+    setLoader3(true);
     console.log("Retrieving form data function called");
     console.log("Certificate ID:", formdataa.certificateID);
     setErrorForPrivate(false);
@@ -469,17 +471,21 @@ const Outstanding = ({}) => {
       setCertificateDetails(mydeporesult);
 
       if (mydeporesult[8] === true) {
-        console.log("Access denied");
         // setErrorForPrivate(true);
-      } else {
+        setLoader3(false);
+        console.log("Succesfully fetched data");
         setErrorForPrivate(false);
         setShowForm(false);
         setShowForm2(false);
         setSuccessMessage("Verification Successful!!");
         console.log("check the image:", `https://ipfs.io/ipfs/${ipfshashData}`);
         formdataa.certificateID = "";
+      } else {
+        console.log("Access denied");
+        setLoader3(false);
       }
     } catch (error) {
+      setLoader3(false);
       // console.log(certificateDetails.hash);
       console.error("hello Error:", error);
       if (error.message.toLowerCase().includes("access denied")) {
@@ -805,7 +811,7 @@ const Outstanding = ({}) => {
                 {showCertificateForm3 && certificateForm3}
               </div>
             )}
-          {isConnected && successMessage && (
+          {isConnected && successMessage && !errorForPrivate && (
             <div className="mt-10 items-center flex flex-col justify-center text-center">
               <Image
                 src="/img3.png"
@@ -985,6 +991,16 @@ const Outstanding = ({}) => {
           {isConnected && errorForPrivate && (
             <div className="bg-red-400 p-6 text-xl font-bold mt-4">
               <p>You dont have access to this data.</p>
+            </div>
+          )}
+          {loader3 && (
+            <div className="mt-5 flex flex-col justify-center items-center mx-auto">
+              <div className="mt-7 animate-spin rounded-full h-16 w-16 border-t-4 border-orange-500"></div>
+              <div>
+                <p className="mt-6 items-center  font-bold text-xl whitespace-nowrap">
+                  Fetching your data...
+                </p>
+              </div>
             </div>
           )}
         </div>
