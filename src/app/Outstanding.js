@@ -3,22 +3,14 @@ import style from "./Style.css";
 import Image from "next/image";
 import { useAccount, useEnsAvatar, useEnsName, useBalance } from "wagmi";
 
-// import contactabi from "../../public/CertificationVerify.json";
 import { ethers } from "ethers";
-// import axios from "axios";
 import CertificationVerify from "../../public/CertificationVerify.json";
 const axios = require("axios");
 const FormData = require("form-data");
-// const fs = require("fs");
 
 const Outstanding = ({}) => {
-  // const mycontract = "0xFCa3A60762Ced92A1389b2347e52f761Ea5F41ca";
-  // const mycontract = "0x219255AE3B8E9dAF91C7d8C24Be2CCE8D327Cfd6";
-  // const mycontract = "0x37eE7A297656A8720B90E8993D4d2bC48F5aE068"; //last contract before pay
-  // const mycontract = "0x7dB3F619112aD9957BAE0AF1a9819fEfFF77745e";
-  // const mycontract = "0x5C90e078f9dfF9EE6316c2853be5db2B6716532e";//account 2
-  const mycontract = "0x859283e9fc87516609CFD8Dc79e5E9947F5F24b8"; //account 3 success 1
-  // const mycontract = "0x5966771CD7FcB7b0C2f273D0cA342911F744E789"; //account 3
+  // const mycontract = "0xEb56E5b74e92B3132aC7889a13B0a115DE4F3bc1";
+  const mycontract = "0xD0F186DB1e473dB0EeEf43972B30d23b72b1b83d";
 
   const { address, isConnected } = useAccount();
   const { data: balance, refetch } = useBalance({ address });
@@ -44,13 +36,19 @@ const Outstanding = ({}) => {
   const [certificateID, setCertificateID] = useState(null);
   const [fileName, setFileName] = useState("");
   const [useEffectCompleted, setUseEffectCompleted] = useState(false);
+  const [useEffectCompleted2, setUseEffectCompleted2] = useState(false);
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
+  const [qqq, setQqq] = useState("");
   const [balanceError, setBalanceError] = useState(false);
   const [userPersonalError, setuserPersonalError] = useState(false);
   // const [data7, setData7] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [certificateDetails, setCertificateDetails] = useState(null);
+  const [showCertificateForm3, setShowCertificateForm3] = useState(false);
+  const [buttonCheckClicked, setButtonCheckClicked] = useState(false);
+  const [successMessage33, setSuccessMessage33] = useState(false);
+  const [errorForPrivate, setErrorForPrivate] = useState(false);
   const [formdata, setFormdata] = useState({
     // certificateID: "",
     certificateName: "",
@@ -59,10 +57,12 @@ const Outstanding = ({}) => {
     cgpaMaximum: "",
     institution: "",
     uriData: "",
+    certificateVisibility: "",
   });
   const [formdataa, setFormdataa] = useState({
     certificateID: "",
   });
+  const [formdataaa, setFormdataaa] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [realtimeBalance, setRealtimeBalance] = useState(null);
   const [realtimeBalanceS, setRealtimeBalanceS] = useState(false);
@@ -84,7 +84,7 @@ const Outstanding = ({}) => {
     while (true) {
       randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
       // const gasLimit = 3 ^ 100000;
-      checkingNumber = await contract?.getCertificateDetails(randomNumber);
+      checkingNumber = await contract?.getCertificateID(randomNumber);
       // console.log("checking......", typeof checkingNumber[0].toNumber());
       console.log("checking......", typeof randomNumber);
 
@@ -129,11 +129,12 @@ const Outstanding = ({}) => {
   }, [address]);
 
   function toggleFormVisibility() {
+    // setFormdata({ certificateVisibility: "" });
     // setUseEffectCompleted(false);
     setBtn1(true);
     setBtn2(false);
     setShowForm(!false);
-
+    setErrorForPrivate(false);
     setShowForm2(false);
     setShow(false);
     setSuccessMessage(false);
@@ -143,9 +144,14 @@ const Outstanding = ({}) => {
     setuserPersonalError(false);
     setLoader(false);
     setLoader2(false);
+    setSuccessMessage33(false);
   }
   function toggleFormVisibility2() {
+    setFormdataaa({ certificateVisibility: "" });
+    setFormdata({ certificateVisibility: "" });
+    setErrorForPrivate(false);
     setBtn1(false);
+    setSuccessMessage33(false);
     setBtn2(true);
     setShowForm(false);
     setShowForm2(!false);
@@ -172,13 +178,38 @@ const Outstanding = ({}) => {
     e.preventDefault();
 
     const { name, value } = e.target;
-    setFormdata((data) => ({ ...data, [name]: value }));
+    let updatedValue = value;
+    if (name === "certificateVisibility") {
+      updatedValue = value === "true"; // Convert to boolean
+    }
+    // const isPublic = value === "true";
+    setFormdata((data) => ({ ...data, [name]: updatedValue }));
+    console.log("Selected formdata for addcertificatee:", formdata);
   }
   function handleSubmit2(e) {
     e.preventDefault();
     const { name, value } = e.target;
     setFormdataa((data) => ({ ...data, [name]: value }));
   }
+  // function handleSubmit3(e) {
+  //   e.preventDefault();
+  //   const { name, value } = e.target;
+  //   setFormdataaa((data) => ({ ...data, [name]: value }));
+  //   console.log("state now of visibility", formdataaa);
+  // }
+  const handleSubmit3 = (e) => {
+    e.preventDefault();
+
+    const { name, value } = e.target;
+    let updatedValue = value;
+    if (name === "certificateVisibility") {
+      updatedValue = value === "true"; // Convert to boolean
+    }
+    // const isPublic = value === "true";
+    setFormdataaa((data) => ({ ...data, [name]: updatedValue }));
+    console.log("Selected formdata for addcertificatee:", formdataaa);
+  };
+
   function onChangeFile(e) {
     const file = e.target.files[0];
     if (file) {
@@ -267,18 +298,22 @@ const Outstanding = ({}) => {
           const data4 = formdata.cgpaObtained;
           const data5 = formdata.cgpaMaximum;
           const data6 = formdata.institution;
+          const TrueFalse = formdata.certificateVisibility;
           setDataa2(data2);
           setDataa3(data3);
           // const data7 = formdata.uriData;
           console.log("dataaaaa certificateid/data11", data11);
           // console.log("dataaaaa uri", typeof data7);
-          console.log("TypeOf data11", typeof data11);
-          console.log("TypeOf certificatename", typeof data2);
-          console.log("TypeOf CertificateRecepient", typeof data3);
-          console.log("TypeOf cgpaObtained", typeof data4);
-          console.log("TypeOf cgpaMaximum", typeof data5);
-          console.log("TypeOf institution", typeof data6);
-          console.log("TypeOf uri", typeof ipfshashData);
+          console.log("TypeOf data11", data11);
+          console.log("TypeOf address", address);
+          console.log("TypeOf certificatename", data2);
+          console.log("TypeOf CertificateRecepient", data3);
+          console.log("TypeOf cgpaObtained", data4);
+          console.log("TypeOf cgpaMaximum", data5);
+          console.log("TypeOf institution", data6);
+          console.log("TypeOf uri", ipfshashData);
+          console.log("TypeOf isPublic", typeof TrueFalse);
+          console.log("TypeOf isPublic", TrueFalse);
 
           console.log("data1 is:", data11);
           console.log("IPHS is:", ipfshashData);
@@ -289,7 +324,8 @@ const Outstanding = ({}) => {
             data3 === "" ||
             data4 === "" ||
             data5 === "" ||
-            data6 === ""
+            data6 === "" ||
+            TrueFalse === ""
             // data7 === ""
           ) {
             //setShowForm(true);
@@ -307,24 +343,28 @@ const Outstanding = ({}) => {
                 const gasEstimate =
                   await contract.estimateGas.addNewCertificates(
                     data11,
+                    address,
                     data2,
                     data3,
                     data5,
                     data4,
                     data6,
                     ipfshashData,
+                    TrueFalse,
                     { value: valueToSend } // Pass the value parameter to the estimation
                   );
 
                 // Send the transaction with the gas limit and value
                 const mydeporesult = await contract.addNewCertificates(
                   data11,
+                  address,
                   data2,
                   data3,
                   data5,
                   data4,
                   data6,
                   ipfshashData,
+                  TrueFalse,
                   {
                     gasLimit: gasEstimate.add(50000),
                     value: valueToSend,
@@ -343,6 +383,7 @@ const Outstanding = ({}) => {
                 formdata.cgpaObtained = "";
                 formdata.cgpaMaximum = "";
                 formdata.institution = "";
+                formdataaa.certificateVisibility = "";
 
                 setShowForm(false);
                 setSuccessMessage(
@@ -408,29 +449,30 @@ const Outstanding = ({}) => {
       setFormSubmitted(false);
     }
   }
+
   async function retrievingFormData() {
     console.log("Retrieving form data function called");
     console.log("Certificate ID:", formdataa.certificateID);
-    // const gasLimit = 3 ^ 100000;
+    setErrorForPrivate(false);
+    setCertificateDetails(false);
+    setShowForm(false);
+    setShowForm2(false);
 
     try {
       const mydeporesult = await contract?.getCertificateDetails(
         formdataa.certificateID
       );
+      console.log("hiiiiiiiiiiiiiiii");
       console.log("hello:", mydeporesult);
-
-      // Move the code that depends on mydeporesult here
       console.log("hello id:", mydeporesult[0]);
       console.log("output", mydeporesult);
       setCertificateDetails(mydeporesult);
 
-      if (mydeporesult.certificateName === "") {
-        console.log("its first loop");
-        setwrongMessage("Not Verified!!");
-        setCertificateDetails(false);
-        setShowForm(false);
-        setShowForm2(false);
+      if (mydeporesult[8] === true) {
+        console.log("Access denied");
+        // setErrorForPrivate(true);
       } else {
+        setErrorForPrivate(false);
         setShowForm(false);
         setShowForm2(false);
         setSuccessMessage("Verification Successful!!");
@@ -438,10 +480,66 @@ const Outstanding = ({}) => {
         formdataa.certificateID = "";
       }
     } catch (error) {
-      console.error("Error:", error);
-      // Handle any errors that may occur during the contract call.
+      // console.log(certificateDetails.hash);
+      console.error("hello Error:", error);
+      if (error.message.toLowerCase().includes("access denied")) {
+        console.log("wow we got access denied");
+        setErrorForPrivate(true);
+      } else {
+        console.log("its first loop");
+        setwrongMessage("Not Verified!!");
+        setCertificateDetails(false);
+        setShowForm(false);
+        setShowForm2(false);
+        setErrorForPrivate(false);
+      }
     }
   }
+  useEffect(() => {
+    console.log("Now formdata state of visibility in useeffect:", formdataaa);
+  }, [formdataaa]);
+  //AGain calling next function
+  const updateCertificateVisibility = async () => {
+    setLoader2(true);
+
+    try {
+      setSuccessMessage(false);
+      setCertificateDetails(false);
+      console.log("current selected state inside final function:", formdataaa);
+      const p = certificateDetails[0].toNumber();
+      const q = formdataaa.certificateVisibility;
+      setQqq(q);
+      console.log(q);
+
+      console.log("Just before submitting state q:", typeof qqq);
+      console.log("Just before submitting state q:", qqq);
+      console.log(
+        "Just before submitting state formdataaa.certificateVisibility:",
+        formdataaa.certificateVisibility
+      );
+      console.log(
+        "Just before submitting state formdataaa.certificateVisibility:",
+        typeof formdataaa.certificateVisibility
+      );
+      const tx = await contract?.setCertificateVisibility(p, q);
+      setLoader2(false);
+      setLoader(true);
+      await tx.wait();
+
+      console.log("ID number:", p);
+      console.log("Successfully changed state of visibility");
+      console.log("Form state of visibility", formdataaa.certificateVisibility);
+
+      setLoader(false);
+      setSuccessMessage33(true);
+      setShowCertificateForm3(false);
+      setFormdataaa({ ...formdataaa, certificateVisibility: "" });
+    } catch (error) {
+      console.error("Changing state error of visibility", error);
+      setLoader2(false);
+      setLoader(false);
+    }
+  };
 
   const certificateForm = (
     <span>
@@ -455,7 +553,6 @@ const Outstanding = ({}) => {
             type="file"
             id="uriData"
             name="uriData"
-            // placeholder=" i.e. Harvard University"
             className="custom-input-width border rounded p-2"
             value={formdata.uriData}
             required
@@ -544,6 +641,24 @@ const Outstanding = ({}) => {
             onChange={handleSubmit}
           />
         </div>
+        <div className="mb-4">
+          <label htmlFor="institution" className="block font-bold">
+            Keep your data:
+          </label>
+          <select
+            id="certificateVisibility"
+            name="certificateVisibility"
+            value={formdata.certificateVisibility}
+            onChange={handleSubmit}
+            className="border rounded p-2"
+          >
+            <option value="" disabled>
+              Select an option
+            </option>
+            <option value="true">Public</option>
+            <option value="false">Private</option>
+          </select>
+        </div>
 
         {wrongMessage2 && (
           <div className="text-red-900 text-xl mt-5 font-bold mb-4">
@@ -589,6 +704,36 @@ const Outstanding = ({}) => {
       </form>
     </span>
   );
+  const certificateForm3 = (
+    <span>
+      <form className=" bg-green-300 p-4 font-bold " onSubmit={handleSubmit3}>
+        <div className="mb-4 flex flex-col items-center justify-center">
+          <label className="block font-bold">Certificate Visibility:</label>
+          <select
+            id="certificateVisibility"
+            name="certificateVisibility"
+            value={formdataaa.certificateVisibility}
+            onChange={handleSubmit3}
+            className="border rounded p-2"
+          >
+            <option value="" disabled>
+              Select an option
+            </option>
+            <option value="true">Public</option>
+            <option value="false">Private</option>
+          </select>
+        </div>
+        <button
+          type="button"
+          className="flex mx-auto bg-blue-500 hover:bg-blue-400  text-white font-bold py-2 px-4 rounded"
+          onClick={updateCertificateVisibility}
+        >
+          SET
+        </button>
+      </form>
+    </span>
+  );
+
   return (
     <span className="">
       <main className=" flex min-h-screen flex-col ">
@@ -629,6 +774,37 @@ const Outstanding = ({}) => {
           {isConnected && showForm
             ? certificateForm
             : isConnected && showForm2 && certificateForm2}
+          {isConnected &&
+            successMessage &&
+            certificateDetails &&
+            certificateDetails[1] === address && (
+              <div className="flex flex-col bg-green-300 p-4 items-center justify-center ">
+                {certificateDetails[8] == true ? (
+                  <p className=" font-bold text-sm ">
+                    Current data visibility: PUBLIC
+                  </p>
+                ) : (
+                  <p className=" font-bold text-sm ">
+                    Current data visibility: PRIVATE
+                  </p>
+                )}
+
+                <p className=" font-bold">
+                  Want to change who can view your data?
+                </p>
+                <button
+                  className=" bg-orange-400 p-2 ml-2 w-16 "
+                  onClick={() => {
+                    setShowCertificateForm3(!showCertificateForm3);
+                    setFormdataaa({ certificateVisibility: "" }); // Reset formdataaa
+                  }}
+                >
+                  {showCertificateForm3 ? <p>NO</p> : <p>YES</p>}
+                </button>
+
+                {showCertificateForm3 && certificateForm3}
+              </div>
+            )}
           {isConnected && successMessage && (
             <div className="mt-10 items-center flex flex-col justify-center text-center">
               <Image
@@ -670,19 +846,19 @@ const Outstanding = ({}) => {
                       <p className="text-left">
                         Certificate Name:{" "}
                         {certificateDetails && certificateDetails.length > 0
-                          ? certificateDetails[1]
+                          ? certificateDetails[2]
                           : "N/A"}
                       </p>
                       <p className="text-left">
                         Recipient:{" "}
                         {certificateDetails && certificateDetails.length > 0
-                          ? certificateDetails[2]
+                          ? certificateDetails[3]
                           : "N/A"}
                       </p>
                       <p className="text-left">
                         CGPA Obtained:{" "}
                         {certificateDetails && certificateDetails.length > 0
-                          ? certificateDetails[3].toNumber() / 100
+                          ? certificateDetails[5].toNumber() / 100
                           : "N/A"}
                       </p>
                       <p className="text-left">
@@ -694,7 +870,7 @@ const Outstanding = ({}) => {
                       <p className="text-left">
                         Institution:{" "}
                         {certificateDetails && certificateDetails.length > 0
-                          ? certificateDetails[5]
+                          ? certificateDetails[6]
                           : "N/A"}
                       </p>
                     </div>
@@ -721,7 +897,7 @@ const Outstanding = ({}) => {
                 )}
 
                 <Image
-                  src={certificateDetails[6]}
+                  src={certificateDetails[7]}
                   alt="Image Description"
                   width={500}
                   height={300}
@@ -795,6 +971,20 @@ const Outstanding = ({}) => {
                   Waiting for your authentication...
                 </p>
               </div>
+            </div>
+          )}
+          {successMessage33 && (
+            <div className="bg-green-400 p-6 text-xl font-bold mt-4">
+              {qqq === false ? (
+                <p> Data visibility state changed to: Private </p>
+              ) : (
+                <p>Data visibility state changed to: Public</p>
+              )}
+            </div>
+          )}
+          {isConnected && errorForPrivate && (
+            <div className="bg-red-400 p-6 text-xl font-bold mt-4">
+              <p>You dont have access to this data.</p>
             </div>
           )}
         </div>
